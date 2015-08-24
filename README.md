@@ -21,6 +21,10 @@
 - OpenGL
 - FreeGLUT
 
+## Download binary
+
+- Linux 32bit: [http://pub.p1x.in/ogl-linux-32bit.app](http://pub.p1x.in/ogl-linux-32bit.app)
+
 ## The MIT License (MIT)
 
 Copyright (c) 2015 P1X
