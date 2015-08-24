@@ -2,19 +2,20 @@
 
 ![Cellular Automaton Engine in action](http://i.imgur.com/3Hxwidr.png)
 
-## Modes
+## Simulation Modes
 
 - Conway's Game of Life
 - modified version of Conway's Game of Life (they gain/lose intensity of a colour instead of on/off)
 
-## Features
+## Keys
 
-- fullscreen/windowed [F1]
-- exit [ESC]
-- FPS change 1-60 [UP][DOWN]
-- reset simulation [ENTER]
+- [F1] fullscreen/windowed
+- [ESC] exit app
+- [UP][DOWN] FPS change 1-60
+- [ENTER] reset simulation
+- [SPACEBAR] change modes 
 
-## Engine
+## Free code
 
 - C++
 - OpenGL
