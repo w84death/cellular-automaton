@@ -7,6 +7,8 @@
 - Conway's Game of Life
 - modified version of Conway's Game of Life (they gain/lose intensity of a colour instead of on/off)
 
+See it in action: https://youtu.be/vocNmgc3i_c
+
 ## Keys
 
 - [F1] fullscreen/windowed
