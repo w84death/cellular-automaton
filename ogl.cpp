@@ -6,7 +6,7 @@
 // http://p1x.in
 //
 // gcc ogl.cpp -o ogl.app -lglut -lGL -lGLU
-// g++ -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU
+// gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU
 //
 // ----------------------------------------
 
@@ -14,8 +14,13 @@
 // ----------------------------------------
 
 // #include <GL/glut.h>
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <GLUT/freeglut.h>
+#else
 #include <GL/freeglut.h>
-#include <GL/gl.h>
+#include <GL/glut.h>
+#endif
 #include <stdio.h>
 #include <time.h>
 
@@ -25,22 +30,23 @@
 int FPS       = 60;
 bool fullScreenMode  = true;
 char title[]         = "OpenGL Cellular Automaton Engine";
+static float VERSION = 1.1;
 int windowWidth      = 320;
 int windowHeight     = 240;
 int windowPosX       = 50;
 int windowPosY       = 50;
 int refreshMills     = 1000/FPS;
-float camera_scale   = 0.6f;
+float camera_scale   = 36.0f;
 
 // AUTOMATION VARS
 // ----------------------------------------
-static int CELLS_ARRAY_SIZE   = 96;
-float cells_main_array[96][96];
-float cells_buffer_array[96][96];
+static int CELLS_ARRAY_SIZE   = 64;
+float cells_main_array[64][64];
+float cells_buffer_array[64][64];
 
 static float CELL_START_COLOR = 0.4f;
 static float CELL_STEP_COLOUR = 0.01f;
-static float CELL_MIN_COLOUR  = 0.01f;
+static float CELL_MIN_COLOUR  = 0.05f;
 static float CELL_MAX_COLOUR  = 0.9f;
 bool automation_mode          = false;
 int stat_iteration            = 0;
@@ -51,6 +57,7 @@ int stat_change               = 0;
 // ----------------------------------------
 
 void initGL() {
+
    glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
 }
 
@@ -244,7 +251,9 @@ void run_automation(){
    }else{
       automation2();
    }
-   stat_iteration++;
+   if (stat_alive > 0) {
+      stat_iteration++;
+   }
    swap_arrays();
 }
 
@@ -307,41 +316,51 @@ void Timer(int value) {
    glutTimerFunc(refreshMills, Timer, 0);
 }
 
+
+void draw_stats(){
+   char buf[256];
+
+   glPushMatrix();
+   glTranslatef (-camera_scale, camera_scale-2, 0);
+      // TITLE
+   glColor3f(1.0f, 1.0f, 1.0f);
+   glRasterPos3f(0.0f, 0.0f, 0.0f);
+   snprintf(buf, sizeof(buf) - 1, "%s - version %f", title, VERSION);
+   glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
+   glPopMatrix();
+
+   glPushMatrix();
+   glTranslatef (-camera_scale, -camera_scale+2, 0);  
+   // STATS
+   glColor3f(1.0f, 1.0f, 1.0f);
+   glRasterPos3f(0.0f, 0.0f, 0.0f);
+   snprintf(buf, sizeof(buf) - 1, "ITERATION: [%i] ALIVE: [%i] CHANGE: [%i]", stat_iteration, stat_alive, stat_change);
+   glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
+   glPopMatrix();
+}
+
+void draw_one_cell(float x, float y, float size){
+   glPushMatrix();
+   glTranslatef (x, y, 0.0);
+   glutSolidSphere(size > 0.666 ? 0.666 : size, 8, 8);
+   glPopMatrix();
+}
+
 void draw_cells(){
    float cell;
-   float cell_size = 1.0f / CELLS_ARRAY_SIZE;
-   float half_size = cell_size * 0.5f;
-   float new_x;
-   float new_y;
-   char buf[256];
+   float half_size = CELLS_ARRAY_SIZE * 0.5f;
 
    for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
       for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
          cell = cells_main_array[x][y];
          if (cell > 0.0f){
-            new_x = (cell_size*x) - 0.5f;
-            new_y = (cell_size*y) - 0.5f;
-            glBegin(GL_QUADS);
-               glColor3f(cell, cell, 1.0f);
-               glVertex2f(new_x - half_size, new_y - half_size);
-               glVertex2f(new_x - half_size, new_y + half_size);
-               glVertex2f(new_x + half_size, new_y + half_size);
-               glVertex2f(new_x + half_size, new_y - half_size);
-            glEnd();
+            glColor3f(cell, cell, 1.0f);
+            draw_one_cell(x-half_size,y-half_size,cell);
          }
       }
    }
 
-   // TITLE
-   glColor3f(1.0f, 1.0f, 1.0f);
-   glRasterPos3f(-0.5f, 0.5f, 0.0f);
-   glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) title);
-
-   // STATS
-   glColor3f(1.0f, 1.0f, 1.0f);
-   glRasterPos3f(0.0f, 0.5f, 0.0f);
-   snprintf(buf, sizeof(buf) - 1, "ITERATION: [%i] ALIVE: [%i] CHANGE: [%i]", stat_iteration, stat_alive, stat_change);
-   glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
+   draw_stats();
 }
 
 void display() {
