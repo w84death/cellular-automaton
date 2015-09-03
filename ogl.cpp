@@ -13,14 +13,8 @@
 // LIBS
 // ----------------------------------------
 
-// #include <GL/glut.h>
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#include <GLUT/freeglut.h>
-#else
 #include <GL/freeglut.h>
-#include <GL/glut.h>
-#endif
+#include <GL/gl.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -36,13 +30,13 @@ int windowHeight     = 240;
 int windowPosX       = 50;
 int windowPosY       = 50;
 int refreshMills     = 1000/FPS;
-float camera_scale   = 36.0f;
+float camera_scale   = 14.0f;
 
 // AUTOMATION VARS
 // ----------------------------------------
-static int CELLS_ARRAY_SIZE   = 64;
-float cells_main_array[64][64];
-float cells_buffer_array[64][64];
+static int CELLS_ARRAY_SIZE   = 32;
+float cells_main_array[32][32];
+float cells_buffer_array[32][32];
 
 static float CELL_START_COLOR = 0.4f;
 static float CELL_STEP_COLOUR = 0.01f;
@@ -125,7 +119,7 @@ void fill_array(){
 
    for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
       for (int x = 0; x < CELLS_ARRAY_SIZE; x++ ){
-         if (random_f() >= 0.9){
+         if (random_f() >= 0.8){
             cells_main_array[x][y] = CELL_START_COLOR;
          }else{
             cells_main_array[x][y] = 0.0f;
@@ -341,8 +335,14 @@ void draw_stats(){
 
 void draw_one_cell(float x, float y, float size){
    glPushMatrix();
-   glTranslatef (x, y, 0.0);
-   glutSolidSphere(size > 0.666 ? 0.666 : size, 8, 8);
+   glTranslatef (x, y, 0.0f);
+   glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+   glEnable ( GL_COLOR_MATERIAL ) ;
+   glColor4f(size > 0.5 ? 0.5 : size, size > 0.5 ? 0.5 : size, 1.0f, 1.0f);
+   GLUquadricObj *quadratic;
+   quadratic = gluNewQuadric();
+   gluQuadricNormals(quadratic, GLU_SMOOTH);
+   gluSphere(quadratic, size > 0.7 ? 0.7 : size, 16, 16);
    glPopMatrix();
 }
 
@@ -364,12 +364,55 @@ void draw_cells(){
 }
 
 void display() {
-   glClear(GL_COLOR_BUFFER_BIT);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   glEnable(GL_DEPTH_TEST);
    draw_cells();
    glutSwapBuffers();
 }
 
+void ambient_lighting(){
+  glEnable(GL_LIGHTING);
+ 
+  double amb = .1;
+  GLfloat global_ambient[] = {amb,amb,amb, 0.1};
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+}
 
+void add_point_light(const float x, const float y, const float z, const float amb, const float diff, const float spec)
+{
+  glEnable(GL_LIGHTING);
+ 
+  
+  // GLfloat light_ambient[] = { 0.3, 0.0, 0.0, 1.0 };
+  // GLfloat light_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
+  // GLfloat light_specular[] = { 0.9, 0.9, 1.0, 1.0 };
+  
+  GLfloat light_ambient[] = { amb,amb,amb, 1.0 };
+  GLfloat light_diffuse[] = {diff, diff, diff, 1.0 };
+  GLfloat light_specular[] = {spec, spec, spec, 1.0 };
+ 
+  GLfloat light_position[] = {x,y,z, 0.0 };
+ 
+  glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+ 
+  glEnable(GL_LIGHT0); //enable the light after setting the properties
+ 
+}
+
+void camera_setup(){
+// glMatrixMode(GL_PROJECTION);
+// glLoadIdentity();
+// gluPerspective(50.0, 1.0, 3.0, 7.0);
+// glMatrixMode(GL_MODELVIEW);
+// // glLoadIdentity();
+// // gluLookAt(0.0, 0.0, 0.0,
+// //           0.0, 0.0, 0.0,
+// //           0.0, 1.0, 0.0);
+
+}
 
 // MAIN
 // ----------------------------------------
@@ -395,6 +438,9 @@ int main(int argc, char** argv) {
    //glutMouseFunc(mouse);
 
    initGL();
+   ambient_lighting();
+   add_point_light(0.2f,0.6f,-1.5f, 0.5, 0.8, 1);
+   camera_setup();
    init_automation();
    glutMainLoop();
    return 0;
