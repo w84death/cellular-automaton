@@ -5,8 +5,7 @@
 // (c)2015 P1X
 // http://p1x.in
 //
-// gcc ogl.cpp -o ogl.app -lglut -lGL -lGLU
-// gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU
+// gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU -lm
 //
 // ----------------------------------------
 
@@ -17,6 +16,7 @@
 #include <GL/gl.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 
 // SYSTEM VARS
 // ----------------------------------------
@@ -24,24 +24,25 @@
 int FPS       = 60;
 bool fullScreenMode  = true;
 char title[]         = "OpenGL Cellular Automaton Engine";
-static float VERSION = 1.1;
+static float VERSION = 1.4f;
 int windowWidth      = 320;
 int windowHeight     = 240;
 int windowPosX       = 50;
 int windowPosY       = 50;
 int refreshMills     = 1000/FPS;
-float camera_scale   = 14.0f;
+float camera_scale   = 20.0f;
 
 // AUTOMATION VARS
 // ----------------------------------------
-static int CELLS_ARRAY_SIZE   = 32;
-float cells_main_array[32][32];
-float cells_buffer_array[32][32];
+static int CELLS_ARRAY_SIZE   = 48;
+static int MAX_CELLS = CELLS_ARRAY_SIZE*CELLS_ARRAY_SIZE;
+float cells_main_array[48][48];
+float cells_buffer_array[48][48];
 
-static float CELL_START_COLOR = 0.4f;
-static float CELL_STEP_COLOUR = 0.01f;
+static float CELL_START_COLOR = 0.5f;
+static float CELL_STEP_COLOUR = 0.005f;
 static float CELL_MIN_COLOUR  = 0.05f;
-static float CELL_MAX_COLOUR  = 0.9f;
+static float CELL_MAX_COLOUR  = 1.0f;
 bool automation_mode          = false;
 int stat_iteration            = 0;
 int stat_alive                = 0;
@@ -251,7 +252,6 @@ void run_automation(){
    swap_arrays();
 }
 
-
 // INPUT
 // ----------------------------------------
 
@@ -310,6 +310,21 @@ void Timer(int value) {
    glutTimerFunc(refreshMills, Timer, 0);
 }
 
+void draw_floor(){
+
+   glPushMatrix();
+   glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+   glEnable ( GL_COLOR_MATERIAL ) ;
+   glColor4f(0.5f, 0.5f, 0.8f, 1.0f);
+   float size= CELLS_ARRAY_SIZE*0.8f;
+   glBegin(GL_POLYGON);
+       glVertex2d(-size, size);
+       glVertex2d(-size, -size);
+       glVertex2d(size, -size);
+       glVertex2d(size, size);
+   glEnd(); 
+   glPopMatrix();
+}
 
 void draw_stats(){
    char buf[256];
@@ -328,7 +343,7 @@ void draw_stats(){
    // STATS
    glColor3f(1.0f, 1.0f, 1.0f);
    glRasterPos3f(0.0f, 0.0f, 0.0f);
-   snprintf(buf, sizeof(buf) - 1, "ITERATION: [%i] ALIVE: [%i] CHANGE: [%i]", stat_iteration, stat_alive, stat_change);
+   snprintf(buf, sizeof(buf) - 1, "ITERATION: [%i] ALIVE: [%i/%i] CHANGE: [%i]", stat_iteration, stat_alive, MAX_CELLS, stat_change);
    glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
    glPopMatrix();
 }
@@ -336,13 +351,20 @@ void draw_stats(){
 void draw_one_cell(float x, float y, float size){
    glPushMatrix();
    glTranslatef (x, y, 0.0f);
-   glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+   glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE ) ;
    glEnable ( GL_COLOR_MATERIAL ) ;
-   glColor4f(size > 0.5 ? 0.5 : size, size > 0.5 ? 0.5 : size, 1.0f, 1.0f);
-   GLUquadricObj *quadratic;
-   quadratic = gluNewQuadric();
-   gluQuadricNormals(quadratic, GLU_SMOOTH);
-   gluSphere(quadratic, size > 0.7 ? 0.7 : size, 16, 16);
+   float color = size > 0.45 ? 0.45 : size;
+   glColor4f(color, color, 1.0, 1.0f);
+   //glScalef(size,size,0.0f);
+   float rf = size*45.0f;
+   glRotatef(rf, 1.0f, 1.0f, 1.0f);
+   // GLUquadricObj *quadratic;
+   // quadratic = gluNewQuadric();
+   // gluQuadricNormals(quadratic, GLU_SMOOTH);
+   // float quad_size = stat_alive < (MAX_CELLS)*0.2 ? 16 : 12;
+   // gluSphere(quadratic, size > 0.6 ? 0.6 : size, quad_size, quad_size);
+
+   glutSolidCube(size);
    glPopMatrix();
 }
 
@@ -354,7 +376,7 @@ void draw_cells(){
       for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
          cell = cells_main_array[x][y];
          if (cell > 0.0f){
-            glColor3f(cell, cell, 1.0f);
+            //glColor3f(cell, cell, 1.0f);
             draw_one_cell(x-half_size,y-half_size,cell);
          }
       }
@@ -363,17 +385,37 @@ void draw_cells(){
    draw_stats();
 }
 
+ void camera_setup(){
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   gluPerspective(120.0, 1.0f, 500.0f, -500.0f);
+   glMatrixMode(GL_MODELVIEW);
+ }
+
+void camera_movement(){
+   //float z = cos(stat_iteration*0.01f)*0.4f;
+   //glTranslatef (0.0f, 0.0f, z);
+  // glRotatef(z, 1.0f, 1.0f, 0.0f);
+}
+
 void display() {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glEnable(GL_DEPTH_TEST);
+   //glEnable(GL_DEPTH_TEST);
+   
+   //glMatrixMode(GL_MODELVIEW);
+   //glLoadIdentity();
+   //gluLookAt (1.0f, 1.0f, 1.0f, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+   //draw_floor();
    draw_cells();
+   //camera_movement();
    glutSwapBuffers();
 }
 
 void ambient_lighting(){
   glEnable(GL_LIGHTING);
  
-  double amb = .1;
+  double amb = .2;
   GLfloat global_ambient[] = {amb,amb,amb, 0.1};
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
 }
@@ -398,20 +440,18 @@ void add_point_light(const float x, const float y, const float z, const float am
   glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
  
-  glEnable(GL_LIGHT0); //enable the light after setting the properties
+ light_position[0] = -x;
+ light_position[1] = y;
+ light_position[2] = -z;
+
+   glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+  glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+  glLightfv(GL_LIGHT1, GL_POSITION, light_position);
  
-}
-
-void camera_setup(){
-// glMatrixMode(GL_PROJECTION);
-// glLoadIdentity();
-// gluPerspective(50.0, 1.0, 3.0, 7.0);
-// glMatrixMode(GL_MODELVIEW);
-// // glLoadIdentity();
-// // gluLookAt(0.0, 0.0, 0.0,
-// //           0.0, 0.0, 0.0,
-// //           0.0, 1.0, 0.0);
-
+  glEnable(GL_LIGHT0); //enable the light after setting the properties
+  glEnable(GL_LIGHT1); //enable the light after setting the properties
+ 
 }
 
 // MAIN
@@ -419,7 +459,17 @@ void camera_setup(){
 
 int main(int argc, char** argv) {
    glutInit(&argc, argv);
-   glutInitDisplayMode(GLUT_DOUBLE);
+
+   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
+   glEnable(GL_MULTISAMPLE);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   glEnable(GL_LINE_SMOOTH);
+   glHint(GL_LINE_SMOOTH, GL_NICEST);
+
+   glEnable(GL_POINT_SMOOTH);
+   glHint(GL_POINT_SMOOTH, GL_NICEST);
 
    glutCreateWindow(title);
    if(fullScreenMode){
@@ -438,8 +488,8 @@ int main(int argc, char** argv) {
    //glutMouseFunc(mouse);
 
    initGL();
-   ambient_lighting();
-   add_point_light(0.2f,0.6f,-1.5f, 0.5, 0.8, 1);
+   //ambient_lighting();
+   add_point_light(0.5f, 0.6f, 3.0f, 0.6, 0.3, 1);
    camera_setup();
    init_automation();
    glutMainLoop();
