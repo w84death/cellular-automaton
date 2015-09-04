@@ -9,12 +9,23 @@
 
 See it in action: https://youtu.be/vocNmgc3i_c
 
+## Update 1.5
+
+Changes:
+
+- 3D cubes
+- Lighting  (2)
+- Lots of nice colours
+- hidden HUD (shift+i to toggle)
+
+Video: https://t.co/5d2KPOcxXj
+
 ## Keys
 
 - [F1] fullscreen/windowed
 - [ESC] exit app
-- [UP][DOWN] FPS change 1-60
 - [ENTER] reset simulation
+- [SHIFT]+[i] or [I] toggle HUD
 - [SPACEBAR] change modes 
 
 ## Free code
@@ -26,6 +37,13 @@ See it in action: https://youtu.be/vocNmgc3i_c
 ## Download binary
 
 - Linux 32bit: [http://pub.p1x.in/ogl-linux-32bit.app](http://pub.p1x.in/ogl-linux-32bit.app)
+
+## Compile
+Make shure to have OpenGL, FreeGLUT installed.
+
+- cd cellular-automaton
+- gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU -lm
+- ./ogl.app
 
 ## The MIT License (MIT)
 
