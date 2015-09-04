@@ -30,14 +30,14 @@ int windowHeight     = 240;
 int windowPosX       = 50;
 int windowPosY       = 50;
 int refreshMills     = 1000/FPS;
-float camera_scale   = 20.0f;
+float camera_scale   = 24.0f;
 
 // AUTOMATION VARS
 // ----------------------------------------
-static int CELLS_ARRAY_SIZE   = 48;
-static int MAX_CELLS = CELLS_ARRAY_SIZE*CELLS_ARRAY_SIZE;
-float cells_main_array[48][48];
-float cells_buffer_array[48][48];
+static int CELLS_ARRAY_SIZE[]   = {64, 48};
+static int MAX_CELLS = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1];
+float cells_main_array[64][48];
+float cells_buffer_array[64][48];
 
 static float CELL_START_COLOR = 0.5f;
 static float CELL_STEP_COLOUR = 0.005f;
@@ -107,8 +107,8 @@ void change_fps(int change_fps){
 
 void init_arrays(){
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
          cells_main_array[x][y] = 0.0f;
          cells_buffer_array[x][y] = 0.0f;
       }
@@ -118,8 +118,8 @@ void init_arrays(){
 void fill_array(){
    float new_cell;
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++ ){
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++ ){
          if (random_f() >= 0.8){
             cells_main_array[x][y] = CELL_START_COLOR;
          }else{
@@ -136,7 +136,7 @@ int count_cells(int cx, int cy, float treshold){
 
    for (int y = cy-1; y <= cy+1; y++){
       for (int x = cx-1; x <= cx+1; x++){
-         if (x >= 0 and y >= 0 and x < CELLS_ARRAY_SIZE and y < CELLS_ARRAY_SIZE and !( x == cx and y == cy)){
+         if (x >= 0 and y >= 0 and x < CELLS_ARRAY_SIZE[0] and y < CELLS_ARRAY_SIZE[1] and !( x == cx and y == cy)){
             if (cells_main_array[x][y] > treshold){
                count++;
             }
@@ -168,8 +168,8 @@ void automation(){
    float cell;
    float new_cell;
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
          count = count_cells(x, y, 0.0f);
          cell = cells_main_array[x][y];
          if (cell > 0.0f){
@@ -195,8 +195,8 @@ void automation2(){
    float cell;
    float new_cell;
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
          count = count_cells(x, y, 0.3f);
          cell = cells_main_array[x][y];
          if (cell > 0.2f){
@@ -223,8 +223,8 @@ void swap_arrays(){
    stat_alive = 0;
    stat_change = 0;
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
          old_cell = cells_main_array[x][y];
          new_cell = cells_buffer_array[x][y];
          cells_main_array[x][y] = new_cell;
@@ -316,7 +316,7 @@ void draw_floor(){
    glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
    glEnable ( GL_COLOR_MATERIAL ) ;
    glColor4f(0.5f, 0.5f, 0.8f, 1.0f);
-   float size= CELLS_ARRAY_SIZE*0.8f;
+   float size= CELLS_ARRAY_SIZE[1]*0.8f;
    glBegin(GL_POLYGON);
        glVertex2d(-size, size);
        glVertex2d(-size, -size);
@@ -332,7 +332,7 @@ void draw_stats(){
    glPushMatrix();
    glTranslatef (-camera_scale, camera_scale-2, 0);
       // TITLE
-   glColor3f(1.0f, 1.0f, 1.0f);
+   glColor3f(0.0f, 0.0f, 0.2f);
    glRasterPos3f(0.0f, 0.0f, 0.0f);
    snprintf(buf, sizeof(buf) - 1, "%s - version %f", title, VERSION);
    glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
@@ -341,7 +341,7 @@ void draw_stats(){
    glPushMatrix();
    glTranslatef (-camera_scale, -camera_scale+2, 0);  
    // STATS
-   glColor3f(1.0f, 1.0f, 1.0f);
+   glColor3f(0.0f, 0.0f, 0.2f);
    glRasterPos3f(0.0f, 0.0f, 0.0f);
    snprintf(buf, sizeof(buf) - 1, "ITERATION: [%i] ALIVE: [%i/%i] CHANGE: [%i]", stat_iteration, stat_alive, MAX_CELLS, stat_change);
    glutBitmapString( GLUT_BITMAP_9_BY_15, (unsigned char*) buf);
@@ -370,15 +370,16 @@ void draw_one_cell(float x, float y, float size){
 
 void draw_cells(){
    float cell;
-   float half_size = CELLS_ARRAY_SIZE * 0.5f;
+   float half_size[] = {CELLS_ARRAY_SIZE[0] * 0.5f, CELLS_ARRAY_SIZE[1] * 0.5f};
 
-   for (int y = 0; y < CELLS_ARRAY_SIZE; y++){
-      for (int x = 0; x < CELLS_ARRAY_SIZE; x++){
+
+   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
+      for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
          cell = cells_main_array[x][y];
          if (cell > 0.0f){
             //glColor3f(cell, cell, 1.0f);
-            draw_one_cell(x-half_size,y-half_size,cell);
-         }
+            draw_one_cell(x-half_size[0], y-half_size[1],cell);
+         } 
       }
    }
 
@@ -388,7 +389,7 @@ void draw_cells(){
  void camera_setup(){
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   gluPerspective(120.0, 1.0f, 500.0f, -500.0f);
+   gluPerspective(120.0, 1.0f, 0.0f, 0.0f);
    glMatrixMode(GL_MODELVIEW);
  }
 
@@ -456,20 +457,21 @@ void add_point_light(const float x, const float y, const float z, const float am
 
 // MAIN
 // ----------------------------------------
+static float modelAmb[4] = {0.2, 0.2, 0.2, 1.0};
 
 int main(int argc, char** argv) {
    glutInit(&argc, argv);
 
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
-   glEnable(GL_MULTISAMPLE);
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   // glEnable(GL_MULTISAMPLE);
+   // glEnable(GL_BLEND);
+   // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   glEnable(GL_LINE_SMOOTH);
-   glHint(GL_LINE_SMOOTH, GL_NICEST);
+   // glEnable(GL_LINE_SMOOTH);
+   // glHint(GL_LINE_SMOOTH, GL_NICEST);
 
-   glEnable(GL_POINT_SMOOTH);
-   glHint(GL_POINT_SMOOTH, GL_NICEST);
+   // glEnable(GL_POINT_SMOOTH);
+   // glHint(GL_POINT_SMOOTH, GL_NICEST);
 
    glutCreateWindow(title);
    if(fullScreenMode){
