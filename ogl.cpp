@@ -21,12 +21,12 @@
 // SYSTEM VARS
 // ----------------------------------------
 
-int FPS       = 60;
+int FPS              = 60;
 bool fullScreenMode  = true;
 char title[]         = "OpenGL Cellular Automaton Engine";
-static float VERSION = 1.4f;
-int windowWidth      = 320;
-int windowHeight     = 240;
+static float VERSION = 1.5f;
+int windowWidth      = 640;
+int windowHeight     = 320;
 int windowPosX       = 50;
 int windowPosY       = 50;
 int refreshMills     = 1000/FPS;
@@ -34,16 +34,17 @@ float camera_scale   = 24.0f;
 
 // AUTOMATION VARS
 // ----------------------------------------
-static int CELLS_ARRAY_SIZE[]   = {64, 48};
-static int MAX_CELLS = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1];
-float cells_main_array[64][48];
-float cells_buffer_array[64][48];
+static int CELLS_ARRAY_SIZE[]    = {84, 48};
+static int MAX_CELLS             = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1];
+float cells_main_array[84][48];
+float cells_buffer_array[84][48];
 
 static float CELL_START_COLOR = 0.5f;
 static float CELL_STEP_COLOUR = 0.005f;
 static float CELL_MIN_COLOUR  = 0.05f;
 static float CELL_MAX_COLOUR  = 1.0f;
 bool automation_mode          = false;
+bool show_info                = false;
 int stat_iteration            = 0;
 int stat_alive                = 0;
 int stat_change               = 0;
@@ -53,7 +54,7 @@ int stat_change               = 0;
 
 void initGL() {
 
-   glClearColor(0.1f, 0.1f, 1.0f, 1.0f);
+   glClearColor(0.3f, 0.05f, 0.6f, 1.0f);
 }
 
 // HELPERS
@@ -120,7 +121,7 @@ void fill_array(){
 
    for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
       for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++ ){
-         if (random_f() >= 0.8){
+         if (random_f() >= 0.85){
             cells_main_array[x][y] = CELL_START_COLOR;
          }else{
             cells_main_array[x][y] = 0.0f;
@@ -266,6 +267,9 @@ void keyboard(unsigned char key, int x, int y) {
       case 32: // space
          automation_mode = !automation_mode;
          break;
+      case 73: // i
+         show_info = !show_info;
+         break;
    }
 }
 
@@ -285,16 +289,18 @@ void specialKeys(int key, int x, int y) {
       case GLUT_KEY_LEFT:
          break;
       case GLUT_KEY_UP:
-         change_fps(1);
+         //change_fps(1);
          break;
       case GLUT_KEY_DOWN:
-         change_fps(-1);
+         //change_fps(-1);
          break;
    }
 }
 
 void mouse(int button, int state, int x, int y) {
    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+      fill_array();
+
       // mouse_x = x;
       // mouse_y = y;
    }
@@ -353,11 +359,15 @@ void draw_one_cell(float x, float y, float size){
    glTranslatef (x, y, 0.0f);
    glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE ) ;
    glEnable ( GL_COLOR_MATERIAL ) ;
-   float color = size > 0.45 ? 0.45 : size;
-   glColor4f(color, color, 1.0, 1.0f);
+   float color[] = {size > 0.45 ? 0.45 : size, size > 0.45 ? 0.45 : size};
+   color[0] += y*0.01f;
+   color[1] += x*0.01f;
+   glColor4f(0.4f, color[0], color[1], 1.0f);
    //glScalef(size,size,0.0f);
+
    float rf = size*45.0f;
    glRotatef(rf, 1.0f, 1.0f, 1.0f);
+
    // GLUquadricObj *quadratic;
    // quadratic = gluNewQuadric();
    // gluQuadricNormals(quadratic, GLU_SMOOTH);
@@ -383,7 +393,9 @@ void draw_cells(){
       }
    }
 
-   draw_stats();
+   if (show_info){
+      draw_stats();
+   }
 }
 
  void camera_setup(){
@@ -487,7 +499,7 @@ int main(int argc, char** argv) {
 
    glutKeyboardFunc(keyboard);
    glutSpecialFunc(specialKeys);
-   //glutMouseFunc(mouse);
+   glutMouseFunc(mouse);
 
    initGL();
    //ambient_lighting();
