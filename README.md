@@ -5,7 +5,7 @@
 ## Simulation Modes
 
 - Conway's Game of Life
-- modified version of Conway's Game of Life (they gain/lose intensity of a colour instead of on/off)
+- modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
 
 See it in action: https://youtu.be/vocNmgc3i_c
 
