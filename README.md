@@ -1,6 +1,6 @@
 # Cellular Automaton Engine in OpenGL
 
-![Cellular Automaton Engine in action](http://i.imgur.com/3Hxwidr.png)
+![Cellular Automaton Engine in action](https://i.imgur.com/Zdeuliw.png)
 
 ## Simulation Modes
 
