@@ -40,10 +40,11 @@ Video: https://t.co/5d2KPOcxXj
 
 ## Compile
 Make shure to have OpenGL, FreeGLUT installed.
-
-- cd cellular-automaton
-- gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU -lm
-- ./ogl.app
+```
+cd cellular-automaton
+gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU -lm
+./ogl.app
+```
 
 ## The MIT License (MIT)
 
