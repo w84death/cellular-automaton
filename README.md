@@ -8,7 +8,8 @@
 - modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
 
 See it in action: 
-- version 1.5: https://youtu.be/oU1YTF9n-4E
+- version 1.5 screencast: https://youtu.be/oU1YTF9n-4E
+- version 1.5 realtime: https://youtu.be/04eWncAXFMs
 - version 1.0: https://youtu.be/vocNmgc3i_c
 
 ## Update 1.5
