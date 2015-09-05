@@ -7,18 +7,18 @@
 - Conway's Game of Life
 - modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
 
-See it in action: https://youtu.be/vocNmgc3i_c
+See it in action: 
+- version 1.5: https://youtu.be/oU1YTF9n-4E
+- version 1.0: https://youtu.be/vocNmgc3i_c
 
 ## Update 1.5
 
 Changes:
 
 - 3D cubes
-- Lighting  (2)
+- Lighting  (2 sources)
 - Lots of nice colours
 - hidden HUD (shift+i to toggle)
-
-Video: https://t.co/5d2KPOcxXj
 
 ## Keys
 
