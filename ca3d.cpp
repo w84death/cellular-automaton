@@ -22,9 +22,9 @@
 // ----------------------------------------------------------------------------
 
 
-bool fullscreen_mode  = false;
+bool fullscreen_mode  = true;
 char win_title[]      = "OpenGL Cellular Automaton Engine 3D";
-static float VERSION  = 1.5f;
+static float VERSION  = 1.6f;
 int win_width         = 512;
 int win_height        = 384;
 int win_x             = 256;
@@ -36,20 +36,20 @@ int refresh_ms        = 1000/FPS;
 static float FOV      = 90.0f;
 float cam_speed       = 0.8f;
 float cam_move_speed  = 0.2f;
-float cam_pos[]       = {0.0f, 0.0f, 20.0f, 0.0f, 0.0f, 20.0f};
+float cam_pos[]       = {0.0f, 0.0f, 32.0f, 0.0f, 0.0f, 24.0f};
 float cam_look_pos[]  = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 float cam_aim[]       = {0.0f, 0.0f};
-float cam_fog_size    = 30.0f;
+float cam_fog_size    = 32.0f;
 float cam_clear_color[4] = {0.3f, 0.05f, 0.6f, 1.0f};
 
 
 // AUTOMATON VARS
 // ----------------------------------------------------------------------------
-static int CELLS_ARRAY_SIZE[]    = {28, 28, 28};
+static int CELLS_ARRAY_SIZE[]    = {32, 32, 32};
 static int MAX_CELLS             = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1]*CELLS_ARRAY_SIZE[2];
 int half[]                        = {CELLS_ARRAY_SIZE[0] * 0.5,  CELLS_ARRAY_SIZE[1] * 0.5, CELLS_ARRAY_SIZE[2] * 0.5};
-float cells_main_array[28][28][28];
-float cells_buffer_array[28][28][28];
+float cells_main_array[32][32][32];
+float cells_buffer_array[32][32][32];
 
 static float CELL_ALIVE = 0.2f;
 static float CELL_NEW   = 0.4f;
@@ -331,6 +331,31 @@ void special_keys(int key, int x, int y) {
       case GLUT_KEY_F2:
         simulation_setup();
         break;
+      case GLUT_KEY_F3:
+        cam_pos[0] = 0.0f;
+         cam_pos[1] = 0.0f;
+         cam_pos[2] = 32.0f;
+         cam_look_pos[0] = 0.0f;
+         cam_look_pos[1] = 0.0f;
+         cam_look_pos[2] = 0.0f;
+        break;
+      case GLUT_KEY_F4:
+        cam_pos[0] = 0.0f;
+         cam_pos[1] = 0.0f;
+         cam_pos[2] = 2.0f;
+         cam_look_pos[0] = 0.0f;
+         cam_look_pos[1] = 0.0f;
+         cam_look_pos[2] = 0.0f;
+        break;
+      case GLUT_KEY_F5:
+        cam_pos[0] = 24.0f;
+         cam_pos[1] = 16.0f;
+         cam_pos[2] = 24.0f;
+         cam_look_pos[0] = 0.0f;
+         cam_look_pos[1] = 0.0f;
+         cam_look_pos[2] = 0.0f;
+        break;
+
    }
 }
 
