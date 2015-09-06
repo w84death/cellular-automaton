@@ -1,20 +1,32 @@
-# Cellular Automaton Engine in OpenGL
+# Cellular Automaton Engine 2D in OpenGL
 
-![Cellular Automaton Engine in action](http://i.imgur.com/3Hxwidr.png)
+![Cellular Automaton Engine in action](https://i.imgur.com/Zdeuliw.png)
 
 ## Simulation Modes
 
 - Conway's Game of Life
-- modified version of Conway's Game of Life (they gain/lose intensity of a colour instead of on/off)
+- modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
 
-See it in action: https://youtu.be/vocNmgc3i_c
+See it in action: 
+- version 1.5 screencast: https://youtu.be/oU1YTF9n-4E
+- version 1.5 realtime: https://youtu.be/04eWncAXFMs
+- version 1.0: https://youtu.be/vocNmgc3i_c
+
+## Update 1.5
+
+Changes:
+
+- 3D cubes
+- Lighting  (2 sources)
+- Lots of nice colours
+- hidden HUD (shift+i to toggle)
 
 ## Keys
 
 - [F1] fullscreen/windowed
 - [ESC] exit app
-- [UP][DOWN] FPS change 1-60
 - [ENTER] reset simulation
+- [SHIFT]+[i] or [I] toggle HUD
 - [SPACEBAR] change modes 
 
 ## Free code
@@ -26,6 +38,19 @@ See it in action: https://youtu.be/vocNmgc3i_c
 ## Download binary
 
 - Linux 32bit: [http://pub.p1x.in/ogl-linux-32bit.app](http://pub.p1x.in/ogl-linux-32bit.app)
+
+## Compile
+Make shure to have OpenGL, FreeGLUT installed.
+```
+cd cellular-automaton
+gcc -Os ca2d.cpp -o ca2d.app -lglut -lGL -lGLU -lm
+./ca2d.app
+```
+
+# Cellular Automaton Engine 3D in OpenGL
+
+New engine. TBD
+
 
 ## The MIT License (MIT)
 
