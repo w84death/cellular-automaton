@@ -24,23 +24,30 @@
 
 bool fullscreen_mode  = false;
 char win_title[]      = "OpenGL Cellular Automaton Engine 3D";
-static float VERSION  = 1.0f;
+static float VERSION  = 1.3f;
 int win_width         = 512;
 int win_height        = 384;
 int win_x             = 256;
 int win_y             = 100;
 
-int FPS               = 60;
+static int FPS        = 60;
 int refresh_ms        = 1000/FPS;
+
+static float FOV      = 90.0f;
+float cam_speed       = 0.8f;
+float cam_move_speed  = 0.2f;
+float cam_pos[]       = {0.0f, 0.0f, 20.0f, 0.0f, 0.0f, 20.0f};
+float cam_look_pos[]  = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+float cam_aim[]       = {0.0f, 0.0f};
 
 
 // AUTOMATON VARS
 // ----------------------------------------------------------------------------
-static int CELLS_ARRAY_SIZE[]    = {16, 16, 16};
+static int CELLS_ARRAY_SIZE[]    = {24, 24, 24};
 static int MAX_CELLS             = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1]*CELLS_ARRAY_SIZE[2];
 int half[]                        = {CELLS_ARRAY_SIZE[0] * 0.5,  CELLS_ARRAY_SIZE[1] * 0.5, CELLS_ARRAY_SIZE[2] * 0.5};
-float cells_main_array[16][16][16];
-float cells_buffer_array[16][16][16];
+float cells_main_array[24][24][24];
+float cells_buffer_array[24][24][24];
 
 static float CELL_ALIVE = 0.2f;
 static float CELL_NEW   = 0.4f;
@@ -54,18 +61,6 @@ static int S_INT        = 0;
 static int S_MENU       = 2;
 static int S_SIMULATION = 4;
 static int S_CREDITS    = 8;
-
-
-float cam_speed   = 0.5f;
-float cam_x       = 10.0f;
-float cam_y       = 10.0f;
-float cam_z       = 20.0f;
-float cam_look_x  = 0.0f;
-float cam_look_y  = 0.0f;
-float cam_look_z  = 0.0f;
-float mouse_x     = 0.0f;
-float mouse_y     = 0.0f;
-float mouse_z     = 0.0f;
 
 
 
@@ -158,7 +153,11 @@ void simulation_draw_cell(float s, float x, float y, float z, float c){
     glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
     glEnable ( GL_COLOR_MATERIAL ) ;
     treshold_c = c > 0.7 ? 0.7 : c;
-    glColor4f(treshold_c, treshold_c, 1.0f, 0.5f);
+    float color[] = {s > 0.45 ? 0.45 : s, s > 0.45 ? 0.45 : s, s > 0.45 ? 0.45 : s};
+    color[0] += x*0.02f;
+    color[1] += y*0.02f;
+    color[2] += z*0.02f;
+    glColor4f(color[0], color[1], color[2]+s, 1.0f);
     glutSolidCube(s);
   glPopMatrix();
 }
@@ -173,20 +172,21 @@ void simulation_setup(){
 
 void simulation_draw(){
   float c;
-  float scale = 2.0f;
-  float size = 1.8f;
-  float new_x, new_y, new_z, new_c;
+  float scale = 1.0f;
+  float size = 0.1f;
+  float new_x, new_y, new_z, new_c, new_s;
   
   for (int z = 0; z < CELLS_ARRAY_SIZE[2]; z++){
   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
   for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
     c = cells_main_array[x][y][z];
-    if ( c > 0.0f){
+    if ( c > CELL_ALIVE){
       new_x = (x - half[0]) * scale;
       new_y = (y - half[1]) * scale;
       new_z = (z - half[2]) * scale;
       new_c = (float)c;
-      simulation_draw_cell(size * c, new_x, new_y, new_z, new_c);
+      new_s = (size + (c*1.5)); // + (sin(x*y) * 0.1);
+      simulation_draw_cell(new_s, new_x, new_y, new_z, new_c);
     }
   }}}
 }
@@ -219,11 +219,11 @@ int simulation_count_neigbours(int cx, int cy, int cz, float treshold){
       if(!(z==cz-1 and y==cy-1 and x==cx-1)){
       if(!(z==cz-1 and y==cy-1 and x==cx+1)){
       if(!(z==cz-1 and y==cy+1 and x==cx-1)){
-      if(!(z==cz-1 and y==cy+1 and x==cx+1)){ // am I crazy already?
+      if(!(z==cz-1 and y==cy+1 and x==cx+1)){
       if(!(z==cz+1 and y==cy-1 and x==cx-1)){
       if(!(z==cz+1 and y==cy-1 and x==cx+1)){
       if(!(z==cz+1 and y==cy+1 and x==cx-1)){
-      if(!(z==cz+1 and y==cy+1 and x==cx+1)){
+      if(!(z==cz+1 and y==cy+1 and x==cx+1)){ // am I crazy already?
       if (cells_main_array[x][y][z] >= treshold){
         neigbours++;
       }}}}}}}}}}
@@ -297,10 +297,7 @@ void simulation_loop(){
 // ----------------------------------------------------------------------------
 
 void mouse(int button, int state, int x, int y) {
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-    mouse_x = x;
-    mouse_y = y;
-  }
+  // void
 }
 
 void special_keys(int key, int x, int y) {
@@ -310,25 +307,78 @@ void special_keys(int key, int x, int y) {
          fullscreen_toggle();
          break;
       case GLUT_KEY_RIGHT:
-        cam_x += cam_speed;
-         break;
+        if(abs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
+          cam_look_pos[0] += cam_speed;
+        }
+        break;
       case GLUT_KEY_LEFT:
-        cam_x -= cam_speed;
-         break;
+        if(abs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
+          cam_look_pos[0] -= cam_speed;
+        }
+        break;
       case GLUT_KEY_UP:
-         cam_y += cam_speed;
-         break;
+        if(abs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
+          cam_look_pos[1] += cam_speed;
+        }
+        break;
       case GLUT_KEY_DOWN:
-         cam_y -= cam_speed;
-         break;
+        if(abs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
+          cam_look_pos[1] -= cam_speed;
+        }
+        break;
       case GLUT_KEY_F2:
         simulation_setup();
         break;
    }
 }
 
+void keyboard(unsigned char key, int x, int y) {
+   switch (key) {
+      case 27:     // ESC key
+         exit(0);
+         break;
+      case 13: // enter
+         
+         break;
+      case 119: // w
+        if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
+          cam_pos[1] += cam_speed;
+          cam_look_pos[1] += cam_speed;
+        }
+        break;
+      case 115: // s
+        if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
+          cam_pos[1] -= cam_speed;
+          cam_look_pos[1] -= cam_speed;
+        }
+        break;
+      case 97: // a
+        if(abs(cam_pos[0]-cam_pos[3]) < cam_speed ){
+          cam_pos[0] -= cam_speed;
+          cam_look_pos[0] -= cam_speed;
+        }
+        break;
+      case 100: // d
+        if(abs(cam_pos[0]-cam_pos[3]) < cam_speed ){
+          cam_pos[0] += cam_speed;
+          cam_look_pos[0] += cam_speed;
+        }
+        break;
 
-
+      case 101: // e
+        if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
+          cam_pos[2] -= cam_speed;
+          cam_look_pos[2] -= cam_speed;
+        }
+        break;
+      case 113: // q
+        if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
+          cam_pos[2] += cam_speed;
+          cam_look_pos[2] += cam_speed;
+        }
+        break;
+   }
+}
 
 
 
@@ -348,7 +398,7 @@ void reshape(GLsizei width, GLsizei height) {
   glViewport(0, 0, width, height);
   glMatrixMode (GL_PROJECTION);  
   glLoadIdentity ();
-  gluPerspective (90.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+  gluPerspective (FOV, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); 
 }
@@ -400,6 +450,7 @@ void setup_app() {
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutSpecialFunc(special_keys);
+  glutKeyboardFunc(keyboard);
   glutMouseFunc(mouse);
 }
 
@@ -409,7 +460,29 @@ void setup_menu(){
 
 void camera_move(){
   glLoadIdentity();
-  gluLookAt(cam_x, cam_y, cam_z, cam_look_x, cam_look_y, cam_look_z, 0.0, 1.0, 0.0);
+  float treshold = 0.05f;
+  for (int i = 0; i < 3; i++){
+    if(cam_pos[i+3] > cam_pos[i]){
+      cam_pos[i+3] -= cam_move_speed;
+    }
+    if(cam_pos[i+3] < cam_pos[i]){
+      cam_pos[i+3] += cam_move_speed;
+    }
+  }
+
+  for (int i = 0; i < 3; i++){
+    if(cam_look_pos[i+3] > cam_look_pos[i]){
+      cam_look_pos[i+3] -= cam_move_speed;
+    }
+    if(cam_look_pos[i+3] < cam_look_pos[i]){
+      cam_look_pos[i+3] += cam_move_speed;
+    }
+  }
+  
+  
+  gluLookAt(cam_pos[3], cam_pos[4], cam_pos[5],
+    cam_look_pos[3], cam_look_pos[4], cam_look_pos[5],
+    0.0, 1.0, 0.0);
 }
 
 void setup_scene(){
