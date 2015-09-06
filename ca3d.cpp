@@ -24,7 +24,7 @@
 
 bool fullscreen_mode  = false;
 char win_title[]      = "OpenGL Cellular Automaton Engine 3D";
-static float VERSION  = 1.3f;
+static float VERSION  = 1.5f;
 int win_width         = 512;
 int win_height        = 384;
 int win_x             = 256;
@@ -39,15 +39,17 @@ float cam_move_speed  = 0.2f;
 float cam_pos[]       = {0.0f, 0.0f, 20.0f, 0.0f, 0.0f, 20.0f};
 float cam_look_pos[]  = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 float cam_aim[]       = {0.0f, 0.0f};
+float cam_fog_size    = 30.0f;
+float cam_clear_color[4] = {0.3f, 0.05f, 0.6f, 1.0f};
 
 
 // AUTOMATON VARS
 // ----------------------------------------------------------------------------
-static int CELLS_ARRAY_SIZE[]    = {24, 24, 24};
+static int CELLS_ARRAY_SIZE[]    = {28, 28, 28};
 static int MAX_CELLS             = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1]*CELLS_ARRAY_SIZE[2];
 int half[]                        = {CELLS_ARRAY_SIZE[0] * 0.5,  CELLS_ARRAY_SIZE[1] * 0.5, CELLS_ARRAY_SIZE[2] * 0.5};
-float cells_main_array[24][24][24];
-float cells_buffer_array[24][24][24];
+float cells_main_array[28][28][28];
+float cells_buffer_array[28][28][28];
 
 static float CELL_ALIVE = 0.2f;
 static float CELL_NEW   = 0.4f;
@@ -154,10 +156,10 @@ void simulation_draw_cell(float s, float x, float y, float z, float c){
     glEnable ( GL_COLOR_MATERIAL ) ;
     treshold_c = c > 0.7 ? 0.7 : c;
     float color[] = {s > 0.45 ? 0.45 : s, s > 0.45 ? 0.45 : s, s > 0.45 ? 0.45 : s};
-    color[0] += x*0.02f;
-    color[1] += y*0.02f;
-    color[2] += z*0.02f;
-    glColor4f(color[0], color[1], color[2]+s, 1.0f);
+    color[0] += z*0.04f;
+    color[1] += x*0.04f;
+    color[2] += y*0.04f;
+    glColor4f(color[0], color[1], color[2], 1.0f);
     glutSolidCube(s);
   glPopMatrix();
 }
@@ -172,7 +174,7 @@ void simulation_setup(){
 
 void simulation_draw(){
   float c;
-  float scale = 1.0f;
+  float scale = 1.2f;
   float size = 0.1f;
   float new_x, new_y, new_z, new_c, new_s;
   
@@ -340,13 +342,13 @@ void keyboard(unsigned char key, int x, int y) {
       case 13: // enter
          
          break;
-      case 119: // w
+      case 113: // q
         if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
           cam_pos[1] += cam_speed;
           cam_look_pos[1] += cam_speed;
         }
         break;
-      case 115: // s
+      case 101: // e
         if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
           cam_pos[1] -= cam_speed;
           cam_look_pos[1] -= cam_speed;
@@ -365,13 +367,13 @@ void keyboard(unsigned char key, int x, int y) {
         }
         break;
 
-      case 101: // e
+      case 119: // w
         if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
           cam_pos[2] -= cam_speed;
           cam_look_pos[2] -= cam_speed;
         }
         break;
-      case 113: // q
+      case 115: // s
         if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
           cam_pos[2] += cam_speed;
           cam_look_pos[2] += cam_speed;
@@ -413,7 +415,6 @@ void fullscreen_toggle(){
 }
 
 void setup_lighting(){
-  
   float amb = 0.6f;
   float diff = 0.3f;
   float spec = 0.2f;
@@ -431,6 +432,12 @@ void setup_lighting(){
   glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glEnable(GL_LIGHT0);
+
+  glFogi(GL_FOG_MODE, GL_LINEAR);
+  glFogfv(GL_FOG_COLOR, cam_clear_color);
+  glFogf(GL_FOG_START, 0.0f);
+  glFogf(GL_FOG_END, cam_fog_size);
+  glEnable(GL_FOG);
 }
 
 void setup_gl(){
@@ -441,7 +448,7 @@ void setup_gl(){
   glClearDepth(1.0f); 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); 
 }
 
 void setup_app() {

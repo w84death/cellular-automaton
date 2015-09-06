@@ -49,7 +49,9 @@ gcc -Os ca2d.cpp -o ca2d.app -lglut -lGL -lGLU -lm
 
 # Cellular Automaton Engine 3D in OpenGL
 
-New engine. TBD
+New engine. 3D cube with new cellular algorithm.
+
+Video: https://youtu.be/Jqp_fl26mt8
 
 
 ## The MIT License (MIT)
