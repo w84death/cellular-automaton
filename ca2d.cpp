@@ -1,11 +1,11 @@
 // ----------------------------------------
-// OpenGL Cellular Automaton Engine
+// OpenGL Cellular Automaton Engine 2D
 // Krzysztof Jankowski <kj@p1x.in>
 //
 // (c)2015 P1X
 // http://p1x.in
 //
-// gcc -Os ogl.cpp -o ogl.app -lglut -lGL -lGLU -lm
+// gcc -Os ca2d.cpp -o ca2d.app -lglut -lGL -lGLU -lm
 //
 // ----------------------------------------
 
@@ -53,7 +53,6 @@ int stat_change               = 0;
 // ----------------------------------------
 
 void initGL() {
-
    glClearColor(0.3f, 0.05f, 0.6f, 1.0f);
 }
 
