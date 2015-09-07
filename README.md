@@ -46,15 +46,22 @@ Videos: [https://youtu.be/04eWncAXFMs](https://youtu.be/04eWncAXFMs) [https://yo
 
 
 # Compile
-## CA2D
+## Linux
 Make shure to have OpenGL, FreeGLUT installed.
+
 ```
-cd cellular-automaton
 gcc -Os ca3d.cpp -o ca3d.app -lglut -lGL -lGLU -lm
 ./ca2d.app
 ```
-## CA3D
+
+## OSX
 Only OpenGL needed.
+
+```
+gcc -o ca3d ca3d.cpp -framework GLUT -framework OpenGL
+./ca3d
+```
+
 
 
 
