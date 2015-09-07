@@ -1,57 +1,61 @@
-# Cellular Automaton Engine 2D in OpenGL
+![Cellular Automaton 3D](http://i.imgur.com/Ld4KPsA.png)
+# Cellular Automaton Engine 3D in OpenGL
 
-![Cellular Automaton Engine in action](https://i.imgur.com/Zdeuliw.png)
+## Simulation Modes
+
+- modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
+- added third dimension
+
+## Download
+
+- Linux 32bit: [ca2d-osx](https://github.com/w84death/cellular-automaton/raw/master/bin/ca3d-linux.app)
+- OSX 64bit: [ca3d-osx](https://github.com/w84death/cellular-automaton/raw/master/bin/ca3d-osx)
+
+## Usage
+- [F1] fullscreen/windowed
+- [F2] reset array (random)
+- [F3, F4, F5] move camera to point 1, 2, 3
+- [WSAD] move camera forward/bacward/left/right
+- [QE] up/down
+- [ARROWS] move target of the camera
+
+## Media
+Video: [https://youtu.be/YsIRFvRxoEs](https://youtu.be/YsIRFvRxoEs)
+
+![Cellular Automaton 2D](http://i.imgur.com/UpUECZ1.png)
+# Cellular Automaton Engine 2D in OpenGL
 
 ## Simulation Modes
 
 - Conway's Game of Life
 - modified version of Conway's Game of Life (they gain/lose size and colour instead of on/off)
 
-See it in action: 
-- version 1.5 screencast: https://youtu.be/oU1YTF9n-4E
-- version 1.5 realtime: https://youtu.be/04eWncAXFMs
-- version 1.0: https://youtu.be/vocNmgc3i_c
+## Download
 
-## Update 1.5
+- Linux 32bit: [http://pub.p1x.in/ogl-linux-32bit.app](http://pub.p1x.in/ogl-linux-32bit.app)
 
-Changes:
-
-- 3D cubes
-- Lighting  (2 sources)
-- Lots of nice colours
-- hidden HUD (shift+i to toggle)
-
-## Keys
-
+## Usage
 - [F1] fullscreen/windowed
 - [ESC] exit app
 - [ENTER] reset simulation
 - [SHIFT]+[i] or [I] toggle HUD
-- [SPACEBAR] change modes 
+- [SPACEBAR] change modes
 
-## Free code
+## Media
+Videos: [https://youtu.be/04eWncAXFMs](https://youtu.be/04eWncAXFMs) [https://youtu.be/oU1YTF9n-4E](https://youtu.be/oU1YTF9n-4E)
 
-- C++
-- OpenGL
-- FreeGLUT
 
-## Download binary
-
-- Linux 32bit: [http://pub.p1x.in/ogl-linux-32bit.app](http://pub.p1x.in/ogl-linux-32bit.app)
-
-## Compile
+# Compile
+## CA2D
 Make shure to have OpenGL, FreeGLUT installed.
 ```
 cd cellular-automaton
-gcc -Os ca2d.cpp -o ca2d.app -lglut -lGL -lGLU -lm
+gcc -Os ca3d.cpp -o ca3d.app -lglut -lGL -lGLU -lm
 ./ca2d.app
 ```
+## CA3D
+Only OpenGL needed.
 
-# Cellular Automaton Engine 3D in OpenGL
-
-New engine. 3D cube with new cellular algorithm.
-
-Video: https://youtu.be/Jqp_fl26mt8
 
 
 ## The MIT License (MIT)
