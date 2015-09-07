@@ -12,8 +12,14 @@
 // LIBS
 // ----------------------------------------
 
-#include <GL/glut.h>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#include <stdlib.h>
+#else
 #include <GL/gl.h>
+#include <GL/glut.h>
+#endif
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
@@ -33,7 +39,7 @@ int win_y             = 100;
 static int FPS        = 60;
 int refresh_ms        = 1000/FPS;
 
-static float FOV      = 90.0f;
+static float FOV      = 100.0f;
 float cam_speed       = 0.8f;
 float cam_move_speed  = 0.2f;
 float cam_pos[]       = {0.0f, 0.0f, 32.0f, 0.0f, 0.0f, 24.0f};
@@ -177,7 +183,7 @@ void simulation_draw(){
   float scale = 1.2f;
   float size = 0.1f;
   float new_x, new_y, new_z, new_c, new_s;
-  
+
   for (int z = 0; z < CELLS_ARRAY_SIZE[2]; z++){
   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
   for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
@@ -309,22 +315,22 @@ void special_keys(int key, int x, int y) {
          fullscreen_toggle();
          break;
       case GLUT_KEY_RIGHT:
-        if(abs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
+        if(fabs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
           cam_look_pos[0] += cam_speed;
         }
         break;
       case GLUT_KEY_LEFT:
-        if(abs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
+        if(fabs(cam_look_pos[0]-cam_look_pos[3]) < cam_speed ){
           cam_look_pos[0] -= cam_speed;
         }
         break;
       case GLUT_KEY_UP:
-        if(abs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
+        if(fabs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
           cam_look_pos[1] += cam_speed;
         }
         break;
       case GLUT_KEY_DOWN:
-        if(abs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
+        if(fabs(cam_look_pos[1]-cam_look_pos[4]) < cam_speed ){
           cam_look_pos[1] -= cam_speed;
         }
         break;
@@ -362,44 +368,44 @@ void special_keys(int key, int x, int y) {
 void keyboard(unsigned char key, int x, int y) {
    switch (key) {
       case 27:     // ESC key
-         exit(0);
+         //exit(0);
          break;
       case 13: // enter
-         
+
          break;
       case 113: // q
-        if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
+        if(fabs(cam_pos[1]-cam_pos[4]) < cam_speed ){
           cam_pos[1] += cam_speed;
           cam_look_pos[1] += cam_speed;
         }
         break;
       case 101: // e
-        if(abs(cam_pos[1]-cam_pos[4]) < cam_speed ){
+        if(fabs(cam_pos[1]-cam_pos[4]) < cam_speed ){
           cam_pos[1] -= cam_speed;
           cam_look_pos[1] -= cam_speed;
         }
         break;
       case 97: // a
-        if(abs(cam_pos[0]-cam_pos[3]) < cam_speed ){
+        if(fabs(cam_pos[0]-cam_pos[3]) < cam_speed ){
           cam_pos[0] -= cam_speed;
           cam_look_pos[0] -= cam_speed;
         }
         break;
       case 100: // d
-        if(abs(cam_pos[0]-cam_pos[3]) < cam_speed ){
+        if(fabs(cam_pos[0]-cam_pos[3]) < cam_speed ){
           cam_pos[0] += cam_speed;
           cam_look_pos[0] += cam_speed;
         }
         break;
 
       case 119: // w
-        if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
+        if(fabs(cam_pos[2]-cam_pos[5]) < cam_speed ){
           cam_pos[2] -= cam_speed;
           cam_look_pos[2] -= cam_speed;
         }
         break;
       case 115: // s
-        if(abs(cam_pos[2]-cam_pos[5]) < cam_speed ){
+        if(fabs(cam_pos[2]-cam_pos[5]) < cam_speed ){
           cam_pos[2] += cam_speed;
           cam_look_pos[2] += cam_speed;
         }
@@ -421,13 +427,13 @@ void keyboard(unsigned char key, int x, int y) {
 void reshape(GLsizei width, GLsizei height) {
   if (width == 0) width = 12;
   if (height == 0) height = 12;
-   
+
   glViewport(0, 0, width, height);
-  glMatrixMode (GL_PROJECTION);  
+  glMatrixMode (GL_PROJECTION);
   glLoadIdentity ();
   gluPerspective (FOV, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
   glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity(); 
+  glLoadIdentity();
 }
 
 void fullscreen_toggle(){
@@ -447,7 +453,7 @@ void setup_lighting(){
   GLfloat global_ambient[]  = {amb, amb, amb, 0.2f};
   GLfloat light_ambient[]   = {amb, amb, amb, 1.0f };
   GLfloat light_diffuse[]   = {diff, diff, diff, 1.0f };
-  GLfloat light_specular[]  = {spec, spec, spec, 1.0f }; 
+  GLfloat light_specular[]  = {spec, spec, spec, 1.0f };
   GLfloat light_position[]  = {0.0f, 0.0f, 0.0f, 0.0f };
 
   glEnable(GL_LIGHTING);
@@ -470,10 +476,10 @@ void setup_gl(){
   glClear(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
   glEnable (GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
-  glClearDepth(1.0f); 
+  glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); 
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
 void setup_app() {
@@ -510,8 +516,8 @@ void camera_move(){
       cam_look_pos[i+3] += cam_move_speed;
     }
   }
-  
-  
+
+
   gluLookAt(cam_pos[3], cam_pos[4], cam_pos[5],
     cam_look_pos[3], cam_look_pos[4], cam_look_pos[5],
     0.0, 1.0, 0.0);
