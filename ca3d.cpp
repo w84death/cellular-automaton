@@ -49,8 +49,8 @@ int refresh_ms        = 1000/FPS;
 static float FOV      = 100.0f;
 float cam_speed       = 0.8f;
 float cam_move_speed  = 0.2f;
-float cam_pos[]       = {0.0f, 0.0f, 32.0f, 0.0f, 0.0f, 24.0f};
-float cam_look_pos[]  = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+float cam_pos[]       = {20.0f, 14.0f, 20.0f, 5.0f, 0.0f, 5.0f};
+float cam_look_pos[]  = {0.0f, 0.0f, 0.0f, 0.0f, 7.0f, 0.0f};
 float cam_aim[]       = {0.0f, 0.0f};
 float cam_fog_size    = 32.0f;
 float cam_clear_color[4] = {0.3f, 0.05f, 0.6f, 1.0f};
@@ -58,11 +58,11 @@ float cam_clear_color[4] = {0.3f, 0.05f, 0.6f, 1.0f};
 
 // AUTOMATON VARS
 // ----------------------------------------------------------------------------
-static int CELLS_ARRAY_SIZE[]    = {32, 32, 32};
+static int CELLS_ARRAY_SIZE[]    = {36, 36, 36};
 static int MAX_CELLS             = CELLS_ARRAY_SIZE[0]*CELLS_ARRAY_SIZE[1]*CELLS_ARRAY_SIZE[2];
 int half[]                        = {CELLS_ARRAY_SIZE[0] * 0.5,  CELLS_ARRAY_SIZE[1] * 0.5, CELLS_ARRAY_SIZE[2] * 0.5};
-float cells_main_array[32][32][32];
-float cells_buffer_array[32][32][32];
+float cells_main_array[36][36][36];
+float cells_buffer_array[36][36][36];
 
 static float CELL_ALIVE = 0.2f;
 static float CELL_NEW   = 0.4f;
@@ -181,7 +181,12 @@ void simulation_setup(){
   for (int z = 0; z < CELLS_ARRAY_SIZE[2]; z++){
   for (int y = 0; y < CELLS_ARRAY_SIZE[1]; y++){
   for (int x = 0; x < CELLS_ARRAY_SIZE[0]; x++){
-    cells_main_array[x][y][z] = random_f() > 0.90f ? random_fcolor() : 0.0f;
+    cells_main_array[x][y][z] = CELL_DEAD;
+    if (z>CELLS_ARRAY_SIZE[2]*0.20 and z < CELLS_ARRAY_SIZE[2]*0.80){
+    if (y>CELLS_ARRAY_SIZE[1]*0.20 and y < CELLS_ARRAY_SIZE[1]*0.80){
+    if (x>CELLS_ARRAY_SIZE[0]*0.20 and x < CELLS_ARRAY_SIZE[0]*0.80){
+      cells_main_array[x][y][z] = (random_f() > 0.85) ? random_fcolor() : CELL_DEAD;  
+    }}}
   }}}
 }
 
@@ -346,27 +351,27 @@ void special_keys(int key, int x, int y) {
         break;
       case GLUT_KEY_F3:
         cam_pos[0] = 0.0f;
-         cam_pos[1] = 0.0f;
-         cam_pos[2] = 32.0f;
-         cam_look_pos[0] = 0.0f;
-         cam_look_pos[1] = 0.0f;
-         cam_look_pos[2] = 0.0f;
+        cam_pos[1] = 0.0f;
+        cam_pos[2] = 28.0f;
+        cam_look_pos[0] = 0.0f;
+        cam_look_pos[1] = 0.0f;
+        cam_look_pos[2] = 0.0f;
         break;
       case GLUT_KEY_F4:
         cam_pos[0] = 0.0f;
-         cam_pos[1] = 0.0f;
-         cam_pos[2] = 2.0f;
-         cam_look_pos[0] = 0.0f;
-         cam_look_pos[1] = 0.0f;
-         cam_look_pos[2] = 0.0f;
+        cam_pos[1] = 0.0f;
+        cam_pos[2] = 4.0f;
+        cam_look_pos[0] = 0.0f;
+        cam_look_pos[1] = 0.0f;
+        cam_look_pos[2] = 0.0f;
         break;
       case GLUT_KEY_F5:
-        cam_pos[0] = 24.0f;
-         cam_pos[1] = 16.0f;
-         cam_pos[2] = 24.0f;
-         cam_look_pos[0] = 0.0f;
-         cam_look_pos[1] = 0.0f;
-         cam_look_pos[2] = 0.0f;
+        cam_pos[0] = 20.0f;
+        cam_pos[1] = 14.0f;
+        cam_pos[2] = 20.0f;
+        cam_look_pos[0] = 0.0f;
+        cam_look_pos[1] = 0.0f;
+        cam_look_pos[2] = 0.0f;
         break;
 
    }
